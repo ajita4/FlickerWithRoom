@@ -1,7 +1,5 @@
 <resources>
     <string name="app_name">AppstreetDemo</string>
-    <string name="api_key">776aa6d326b1b0cf5b0dc7150b3943c0</string>
-    <string name="api_Secret">a4ae9e90be772285</string>
     <string name="item_1">1</string>
     <string name="item_2">2</string>
     <string name="item_3">3</string>
