@@ -1,11 +1,13 @@
 package com.ajit.appstreetdemo.data;
 
+import com.ajit.appstreetdemo.data.models.FlickerPhotosPhoto;
+
 import java.util.List;
 
 public interface DataManger {
-    boolean checkOffline(String searchItem);
+    boolean checkOffline(ImagesRequest imagesRequest);
 
-    List<ImageItem> getOfflineData(String searchItem);
+    void offlineData(ImagesRequest imagesRequest);
 
-    List<ImageItem> downloadFromServer(String searchItem);
+    void serverData(ImagesRequest imagesRequest);
 }

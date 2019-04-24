@@ -11,8 +11,11 @@ import android.widget.TextView;
 import com.ajit.appstreetdemo.Constants;
 import com.ajit.appstreetdemo.R;
 import com.ajit.appstreetdemo.adapter.SearchAdapter;
-import com.ajit.appstreetdemo.data.ImageItem;
+import com.ajit.appstreetdemo.data.DataEmitter;
+import com.ajit.appstreetdemo.data.ImagesRequest;
 import com.ajit.appstreetdemo.data.WebModel;
+import com.ajit.appstreetdemo.data.models.Flicker;
+import com.ajit.appstreetdemo.data.models.FlickerPhotosPhoto;
 
 import java.util.List;
 
@@ -24,7 +27,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements DataEmitter {
 
     @BindView(R.id.toolbar_search_input)
     EditText toolbarSearchInput;
@@ -39,6 +42,7 @@ public class MainActivity extends AppCompatActivity {
     private WebModel webModel;
     private SearchAdapter adapter;
     private static final int GRID_DEFAULT_SPAN_COUNT = 3;
+    private ImagesRequest imagesRequest;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
         setSupportActionBar(toolbar);
-        webModel = new WebModel();
+        webModel = new WebModel(this);
         init();
     }
 
@@ -68,20 +72,18 @@ public class MainActivity extends AppCompatActivity {
     private void showData() {
         toolbarSearchInput.setOnEditorActionListener((v, actionId, event) -> {
             if (actionId == EditorInfo.IME_ACTION_DONE) {
-                List<ImageItem> itemList = webModel.getImageList(toolbarSearchInput.getText().toString());
-                if (itemList.size() > 0) {
-                    adapter.setItems(itemList);
-                } else {
-                    searchEmptyview.setVisibility(View.VISIBLE);
-                    searchRecyclerView.setVisibility(View.GONE);
-                }
+                imagesRequest = new ImagesRequest();
+                imagesRequest.setSearchText(toolbarSearchInput.getText().toString());
+                imagesRequest.setPage(1);
+                imagesRequest.setPerPage(15);
+                webModel.imageList(imagesRequest);
             }
             return false;
         });
 
     }
 
-    private void openFullScreen(ImageItem imageItem) {
+    private void openFullScreen(FlickerPhotosPhoto imageItem) {
 
     }
 
@@ -91,7 +93,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
                 // Paginate Vertically
-
+                webModel.imageList(imagesRequest);
             }
 
             @Override
@@ -127,5 +129,34 @@ public class MainActivity extends AppCompatActivity {
     @OnClick(R.id.toolbar_search_clear)
     public void onViewClicked() {
         toolbarSearchInput.setText(null);
+    }
+
+    @Override
+    public void setData(Flicker flicker) {
+        if (flicker.getStat().equals("ok")) {
+            if (flicker.getPhotos().getPages() >= imagesRequest.getPage())
+                imagesRequest.setPage(imagesRequest.getPage() + 1);
+            flicker.getPhotos().getPage();
+            List<FlickerPhotosPhoto> itemList = flicker.getPhotos().getPhoto();
+            if (itemList.size() > 0) {
+                showView(true);
+                adapter.setItems(itemList);
+            } else {
+                showView(false);
+            }
+        } else {
+            showView(false);
+        }
+
+    }
+
+    @Override
+    public void error() {
+        showView(false);
+    }
+
+    public void showView(boolean hasData) {
+        searchEmptyview.setVisibility(hasData ? View.GONE : View.VISIBLE);
+        searchRecyclerView.setVisibility(hasData ? View.VISIBLE : View.GONE);
     }
 }

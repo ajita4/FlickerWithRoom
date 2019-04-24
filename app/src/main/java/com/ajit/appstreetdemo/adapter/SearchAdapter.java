@@ -7,7 +7,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 import com.ajit.appstreetdemo.R;
-import com.ajit.appstreetdemo.data.ImageItem;
+import com.ajit.appstreetdemo.data.models.FlickerPhotosPhoto;
 
 import java.util.List;
 
@@ -18,13 +18,12 @@ import butterknife.ButterKnife;
 public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.Holder> {
 
     public interface Listener {
-        void onItemClicked(ImageItem setting);
+        void onItemClicked(FlickerPhotosPhoto setting);
     }
 
     private final Listener listener;
 
-    private ImageItem imageItem;
-    List<ImageItem> imageItemList;
+    List<FlickerPhotosPhoto> photoList;
 
     public SearchAdapter(Listener listener) {
         this.listener = listener;
@@ -37,25 +36,21 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.Holder> {
 
     @Override
     public void onBindViewHolder(Holder holder, int i) {
-        ImageItem imageItem = imageItemList.get(i);
+        FlickerPhotosPhoto imageItem = photoList.get(i);
         holder.imageView.setOnClickListener(v -> listener.onItemClicked(imageItem));
 
     }
 
     @Override
     public int getItemCount() {
-        if (imageItemList != null) {
-            return imageItemList.size();
+        if (photoList != null) {
+            return photoList.size();
         }
         return 0;
     }
 
-    public void setItems(List<ImageItem> items) {
-        imageItemList = items;
-    }
-
-    public void setImageItem(ImageItem setting) {
-        imageItem = setting;
+    public void setItems(List<FlickerPhotosPhoto> items) {
+        photoList = items;
         notifyDataSetChanged();
     }
 

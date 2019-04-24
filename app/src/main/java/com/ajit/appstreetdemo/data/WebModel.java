@@ -1,20 +1,18 @@
 package com.ajit.appstreetdemo.data;
 
-import java.util.List;
-
 public class WebModel {
 
     private DataManger dataManger;
 
-    public WebModel() {
-        this.dataManger = new DataMangerImpl();
+    public WebModel(DataEmitter dataEmitter) {
+        this.dataManger = new DataMangerImpl(dataEmitter);
     }
 
-    public List<ImageItem> getImageList(String searchItem) {
-        if (dataManger.checkOffline(searchItem)) {
-            return dataManger.getOfflineData(searchItem);
+    public void imageList(ImagesRequest imagesRequest) {
+        if (dataManger.checkOffline(imagesRequest)) {
+            dataManger.offlineData(imagesRequest);
         } else {
-            return dataManger.downloadFromServer(searchItem);
+            dataManger.serverData(imagesRequest);
         }
     }
 }
