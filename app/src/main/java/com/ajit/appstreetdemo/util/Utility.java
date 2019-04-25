@@ -3,10 +3,21 @@ package com.ajit.appstreetdemo.util;
 import android.content.Context;
 import android.util.DisplayMetrics;
 
-import com.ajit.appstreetdemo.ApplicationController;
 import com.ajit.appstreetdemo.data.models.FlickerPhotosPhoto;
 
 public class Utility {
+
+    private Utility() {
+    }
+
+    private static Utility utility;
+
+    public static Utility getInstance() {
+        if (utility == null) {
+            utility = new Utility();
+        }
+        return utility;
+    }
 
     public static String getImageUrlFromIds(FlickerPhotosPhoto imageItem, ImageSize imageSize) {
 
@@ -21,10 +32,6 @@ public class Utility {
         return stringBuilder.toString();
     }
 
-    public int deviceWidthInDp(Context context) {
-        return (int) (deviceWidthInPx(context) / deviceDensity());
-    }
-
     public int deviceWidthInPx(Context context) {
         return getDisplayMetrics(context).widthPixels;
     }
@@ -32,10 +39,5 @@ public class Utility {
     private DisplayMetrics getDisplayMetrics(Context context) {
         return context.getResources().getDisplayMetrics();
     }
-
-    public float deviceDensity() {
-        return ApplicationController.getInstance().getApplicationContext().getResources().getDisplayMetrics().density;
-    }
-
 
 }

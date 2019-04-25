@@ -11,7 +11,6 @@ import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.BasicNetwork;
 import com.android.volley.toolbox.DiskBasedCache;
 import com.android.volley.toolbox.HurlStack;
-import com.squareup.picasso.Picasso;
 
 import java.util.concurrent.TimeUnit;
 
@@ -29,8 +28,8 @@ public class ApplicationController extends Application {
         super.onCreate();
         applicationControler = this;
         // Picasso
-        Picasso.setSingletonInstance(new Picasso.Builder(this)
-                .build());
+      /*  Picasso.setSingletonInstance(new Picasso.Builder(this)
+                .build());*/
     }
 
     public RequestQueue getRequestQueue() {

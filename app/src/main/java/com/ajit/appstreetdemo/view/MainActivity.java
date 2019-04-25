@@ -29,6 +29,8 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
+import static com.ajit.appstreetdemo.Constants.GRID_DEFAULT_SPAN_COUNT;
+
 public class MainActivity extends AppCompatActivity implements DataEmitter {
 
     @BindView(R.id.toolbar_search_input)
@@ -45,7 +47,7 @@ public class MainActivity extends AppCompatActivity implements DataEmitter {
     private GridLayoutManager gridLayoutManager;
     private WebModel webModel;
     private SearchAdapter adapter;
-    private static int GRID_DEFAULT_SPAN_COUNT = 3;
+
     private ImagesRequest imagesRequest;
     RecyclerViewScrollListener recyclerViewScrollListener;
     Utility utility;
@@ -57,29 +59,22 @@ public class MainActivity extends AppCompatActivity implements DataEmitter {
         ButterKnife.bind(this);
         setSupportActionBar(toolbar);
         webModel = new WebModel(this);
-        utility = new Utility();
+        utility = Utility.getInstance();
         init();
     }
 
     private void init() {
 
-        int spacingInPixels = getResources().getDimensionPixelSize(R.dimen.grid_spacing);
-
-        int deviceWidthInDp = utility.deviceWidthInDp(this);
-        float itemWidthPixels = getResources().getDimension(R.dimen.listitemeventimage_width_height);
-        float fullWidthInclSpacing = itemWidthPixels + 2 * spacingInPixels;
-        float itemWidthInDp = fullWidthInclSpacing / utility.deviceDensity();
-        itemWidthInDp = (int) (deviceWidthInDp / GRID_DEFAULT_SPAN_COUNT);
-
         // RecyclerView
         gridLayoutManager = new GridLayoutManager(this, GRID_DEFAULT_SPAN_COUNT);
         searchRecyclerView.setLayoutManager(gridLayoutManager);
 
-        adapter = new SearchAdapter(this::openFullScreen);
+        adapter = new SearchAdapter(this, this::openFullScreen);
         searchRecyclerView.setAdapter(adapter);
+        adapter.setWidthOfImage(GRID_DEFAULT_SPAN_COUNT);
         // prevent recyclerView from not starting at top
         searchRecyclerView.setFocusable(false);
-        showView(false);
+        searchEmptyview.setVisibility(View.GONE);
         showData();
         setupScrollListener(gridLayoutManager);
 
@@ -103,7 +98,7 @@ public class MainActivity extends AppCompatActivity implements DataEmitter {
 
     }
 
-    private void openFullScreen(FlickerPhotosPhoto imageItem) {
+    private void openFullScreen(FlickerPhotosPhoto photo) {
 
     }
 
@@ -145,7 +140,7 @@ public class MainActivity extends AppCompatActivity implements DataEmitter {
 
     private void updateGridLayout(int spanCount) {
         gridLayoutManager.setSpanCount(spanCount);
-        adapter.notifyDataSetChanged();
+        adapter.setWidthOfImage(spanCount);
     }
 
     @OnClick(R.id.toolbar_search_clear)
@@ -160,8 +155,9 @@ public class MainActivity extends AppCompatActivity implements DataEmitter {
     @Override
     public void setData(Flicker flicker) {
         if (flicker.getStat().equals("ok")) {
-            if (flicker.getPhotos().getPages() >= imagesRequest.getPage())
+            if (flicker.getPhotos().getPages() >= imagesRequest.getPage()) {
                 imagesRequest.setPage(imagesRequest.getPage() + 1);
+            }
             flicker.getPhotos().getPage();
             List<FlickerPhotosPhoto> itemList = flicker.getPhotos().getPhoto();
             if (itemList.size() > 0) {
@@ -180,6 +176,7 @@ public class MainActivity extends AppCompatActivity implements DataEmitter {
     @Override
     public void error() {
         showView(false);
+        progressBar.setVisibility(View.GONE);
     }
 
     public void showView(boolean hasData) {
