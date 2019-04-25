@@ -7,4 +7,5 @@ public class Constants {
     public static final String API_KEY = "776aa6d326b1b0cf5b0dc7150b3943c0";
     public static final String API_SECRET = "a4ae9e90be772285";
 
+    public static final String TAG_API_IMAGELIST = "tag_images";
 }

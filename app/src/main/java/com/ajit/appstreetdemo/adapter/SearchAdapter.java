@@ -8,7 +8,11 @@ import android.widget.LinearLayout;
 
 import com.ajit.appstreetdemo.R;
 import com.ajit.appstreetdemo.data.models.FlickerPhotosPhoto;
+import com.ajit.appstreetdemo.util.ImageSize;
+import com.ajit.appstreetdemo.util.Utility;
+import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import androidx.recyclerview.widget.RecyclerView;
@@ -23,7 +27,7 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.Holder> {
 
     private final Listener listener;
 
-    List<FlickerPhotosPhoto> photoList;
+    List<FlickerPhotosPhoto> photoList = new ArrayList<>();
 
     public SearchAdapter(Listener listener) {
         this.listener = listener;
@@ -37,6 +41,12 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.Holder> {
     @Override
     public void onBindViewHolder(Holder holder, int i) {
         FlickerPhotosPhoto imageItem = photoList.get(i);
+
+        Picasso.get()
+                .load(Utility.getImageUrlFromIds(imageItem, ImageSize.IMAGE_SIZE_MEDIUM))
+                .placeholder(R.drawable.icon_placeholder)
+                .into(holder.imageView);
+
         holder.imageView.setOnClickListener(v -> listener.onItemClicked(imageItem));
 
     }
@@ -49,8 +59,12 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.Holder> {
         return 0;
     }
 
-    public void setItems(List<FlickerPhotosPhoto> items) {
-        photoList = items;
+    public void setItems(List<FlickerPhotosPhoto> newData) {
+        this.photoList.addAll(newData);
+    }
+
+    public void clear() {
+        photoList.clear();
         notifyDataSetChanged();
     }
 

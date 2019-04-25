@@ -6,7 +6,7 @@
         <item name="colorPrimary">@color/isabelline</item>
         <item name="colorPrimaryDark">@color/black</item>
         <item name="colorAccent">@color/colorAccent</item>
-        <item name="android:windowBackground">@color/isabelline</item>
+        <item name="android:windowBackground">@color/white</item>
     </style>
 
 </resources>

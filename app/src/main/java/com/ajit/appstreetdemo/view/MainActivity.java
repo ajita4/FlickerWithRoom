@@ -6,6 +6,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.ajit.appstreetdemo.Constants;
@@ -16,6 +17,7 @@ import com.ajit.appstreetdemo.data.ImagesRequest;
 import com.ajit.appstreetdemo.data.WebModel;
 import com.ajit.appstreetdemo.data.models.Flicker;
 import com.ajit.appstreetdemo.data.models.FlickerPhotosPhoto;
+import com.ajit.appstreetdemo.util.Utility;
 
 import java.util.List;
 
@@ -37,12 +39,16 @@ public class MainActivity extends AppCompatActivity implements DataEmitter {
     RecyclerView searchRecyclerView;
     @BindView(R.id.search_emptyview)
     TextView searchEmptyview;
+    @BindView(R.id.progressBar)
+    ProgressBar progressBar;
 
     private GridLayoutManager gridLayoutManager;
     private WebModel webModel;
     private SearchAdapter adapter;
-    private static final int GRID_DEFAULT_SPAN_COUNT = 3;
+    private static int GRID_DEFAULT_SPAN_COUNT = 3;
     private ImagesRequest imagesRequest;
+    RecyclerViewScrollListener recyclerViewScrollListener;
+    Utility utility;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,10 +57,19 @@ public class MainActivity extends AppCompatActivity implements DataEmitter {
         ButterKnife.bind(this);
         setSupportActionBar(toolbar);
         webModel = new WebModel(this);
+        utility = new Utility();
         init();
     }
 
     private void init() {
+
+        int spacingInPixels = getResources().getDimensionPixelSize(R.dimen.grid_spacing);
+
+        int deviceWidthInDp = utility.deviceWidthInDp(this);
+        float itemWidthPixels = getResources().getDimension(R.dimen.listitemeventimage_width_height);
+        float fullWidthInclSpacing = itemWidthPixels + 2 * spacingInPixels;
+        float itemWidthInDp = fullWidthInclSpacing / utility.deviceDensity();
+        itemWidthInDp = (int) (deviceWidthInDp / GRID_DEFAULT_SPAN_COUNT);
 
         // RecyclerView
         gridLayoutManager = new GridLayoutManager(this, GRID_DEFAULT_SPAN_COUNT);
@@ -64,9 +79,10 @@ public class MainActivity extends AppCompatActivity implements DataEmitter {
         searchRecyclerView.setAdapter(adapter);
         // prevent recyclerView from not starting at top
         searchRecyclerView.setFocusable(false);
-
+        showView(false);
         showData();
         setupScrollListener(gridLayoutManager);
+
     }
 
     private void showData() {
@@ -75,8 +91,12 @@ public class MainActivity extends AppCompatActivity implements DataEmitter {
                 imagesRequest = new ImagesRequest();
                 imagesRequest.setSearchText(toolbarSearchInput.getText().toString());
                 imagesRequest.setPage(1);
-                imagesRequest.setPerPage(15);
+                imagesRequest.setPerPage(30);
                 webModel.imageList(imagesRequest);
+                progressBar.setVisibility(View.VISIBLE);
+                if (recyclerViewScrollListener != null) {
+                    recyclerViewScrollListener.resetState();
+                }
             }
             return false;
         });
@@ -89,18 +109,20 @@ public class MainActivity extends AppCompatActivity implements DataEmitter {
 
     private void setupScrollListener(GridLayoutManager gridLayoutManager) {
         searchRecyclerView.clearOnScrollListeners();
-        searchRecyclerView.addOnScrollListener(new RecyclerViewScrollListener(gridLayoutManager, Constants.RECYCLER_VIEW_SCROLL_LISTENER_VISIBLE_THRESHOLD) {
+        recyclerViewScrollListener = new RecyclerViewScrollListener(gridLayoutManager, Constants.RECYCLER_VIEW_SCROLL_LISTENER_VISIBLE_THRESHOLD) {
             @Override
             public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
                 // Paginate Vertically
                 webModel.imageList(imagesRequest);
+                progressBar.setVisibility(View.VISIBLE);
             }
 
             @Override
             public void onScrollStateIdle(RecyclerView recyclerView) {
                 // DO NOTHING
             }
-        });
+        };
+        searchRecyclerView.addOnScrollListener(recyclerViewScrollListener);
     }
 
     @Override
@@ -129,6 +151,10 @@ public class MainActivity extends AppCompatActivity implements DataEmitter {
     @OnClick(R.id.toolbar_search_clear)
     public void onViewClicked() {
         toolbarSearchInput.setText(null);
+        adapter.clear();
+        showView(false);
+        webModel.closeRequest();
+        progressBar.setVisibility(View.GONE);
     }
 
     @Override
@@ -139,8 +165,9 @@ public class MainActivity extends AppCompatActivity implements DataEmitter {
             flicker.getPhotos().getPage();
             List<FlickerPhotosPhoto> itemList = flicker.getPhotos().getPhoto();
             if (itemList.size() > 0) {
-                showView(true);
                 adapter.setItems(itemList);
+                showView(true);
+                progressBar.setVisibility(View.GONE);
             } else {
                 showView(false);
             }

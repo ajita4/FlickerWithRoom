@@ -41,7 +41,7 @@
                         android:layout_height="match_parent"
                         android:layout_alignParentStart="true"
                         android:scaleType="center"
-                        android:src="@drawable/icon_search_bar"/>
+                        android:src="@drawable/icon_search_bar" />
 
                     <ImageView
                         android:id="@+id/toolbar_search_clear"
@@ -59,13 +59,13 @@
                         android:layout_toEndOf="@id/toolbar_search_icon"
                         android:background="@null"
                         android:drawablePadding="8dp"
+                        android:hint="Search"
                         android:imeOptions="actionDone"
                         android:inputType="text"
                         android:paddingStart="8dp"
                         android:paddingEnd="8dp"
                         android:textColor="#0a0a0a"
                         android:textColorHint="#a0a0a0"
-                        android:hint="Search"
                         android:textSize="13sp" />
 
                 </RelativeLayout>
@@ -81,7 +81,10 @@
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/search_recyclerview"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:layout_marginStart="2dp"
+                android:layout_marginEnd="2dp" />
 
             <TextView
                 android:id="@+id/search_emptyview"
@@ -95,5 +98,14 @@
         </FrameLayout>
 
     </LinearLayout>
+
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="wrap_content"
+        android:visibility="gone"
+        android:layout_centerInParent="true"
+        android:layout_height="wrap_content" />
 
 </RelativeLayout>
