@@ -1,127 +1,140 @@
 package com.ajit.appstreetdemo.data.models;
 
-import android.os.Parcel;
-import android.os.Parcelable;
+import androidx.annotation.NonNull;
+import androidx.room.ColumnInfo;
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
 
-public class FlickerPhotosPhoto implements Parcelable {
-    public static final Creator<FlickerPhotosPhoto> CREATOR = new Creator<FlickerPhotosPhoto>() {
-        @Override
-        public FlickerPhotosPhoto createFromParcel(Parcel source) {
-            FlickerPhotosPhoto var = new FlickerPhotosPhoto();
-            var.owner = source.readString();
-            var.server = source.readString();
-            var.ispublic = source.readInt();
-            var.isfriend = source.readInt();
-            var.farm = source.readInt();
-            var.id = source.readString();
-            var.secret = source.readString();
-            var.title = source.readString();
-            var.isfamily = source.readInt();
-            return var;
-        }
 
-        @Override
-        public FlickerPhotosPhoto[] newArray(int size) {
-            return new FlickerPhotosPhoto[size];
-        }
-    };
-    private String owner;
-    private String server;
-    private int ispublic;
-    private int isfriend;
-    private int farm;
+@Entity(tableName = "flicker_photos_photo_table")
+public class FlickerPhotosPhoto {
+
+
+    @PrimaryKey(autoGenerate = true)
+    private int localId;
+
+    @NonNull
+    @ColumnInfo(name = "id")
     private String id;
+
+    @NonNull
+    @ColumnInfo(name = "search_text")
+    private String searchText;
+    @ColumnInfo(name = "owner")
+    private String owner;
+    @NonNull
+    @ColumnInfo(name = "server")
+    private String server;
+    @ColumnInfo(name = "ispublic")
+    private int ispublic;
+    @ColumnInfo(name = "isfriend")
+    private int isfriend;
+    @ColumnInfo(name = "farm")
+    private int farm;
+    @NonNull
+    @ColumnInfo(name = "secret")
     private String secret;
+    @NonNull
+    @ColumnInfo(name = "title")
     private String title;
+    @ColumnInfo(name = "isfamily")
     private int isfamily;
 
-    public String getOwner() {
-        return this.owner;
-    }
-
-    public void setOwner(String owner) {
-        this.owner = owner;
-    }
-
-    public String getServer() {
-        return this.server;
-    }
-
-    public void setServer(String server) {
-        this.server = server;
-    }
-
-    public int getIspublic() {
-        return this.ispublic;
-    }
-
-    public void setIspublic(int ispublic) {
-        this.ispublic = ispublic;
-    }
-
-    public int getIsfriend() {
-        return this.isfriend;
-    }
-
-    public void setIsfriend(int isfriend) {
-        this.isfriend = isfriend;
-    }
-
-    public int getFarm() {
-        return this.farm;
-    }
-
-    public void setFarm(int farm) {
-        this.farm = farm;
+    public void setSearchText(@NonNull String searchText) {
+        this.searchText = searchText;
     }
 
     public String getId() {
-        return this.id;
+        return id;
+    }
+
+    @NonNull
+    public String getSearchText() {
+        return searchText;
+    }
+
+    @NonNull
+    public String getOwner() {
+        return owner;
+    }
+
+    @NonNull
+    public String getServer() {
+        return server;
+    }
+
+    public int getLocalId() {
+        return localId;
+    }
+
+    public int getIspublic() {
+        return ispublic;
+    }
+
+    public int getIsfriend() {
+        return isfriend;
+    }
+
+    public int getFarm() {
+        return farm;
+    }
+
+    @NonNull
+    public String getImageId() {
+        return id;
+    }
+
+    @NonNull
+    public String getSecret() {
+        return secret;
+    }
+
+    @NonNull
+    public String getTitle() {
+        return title;
+    }
+
+    public int getIsfamily() {
+        return isfamily;
+    }
+
+    public void setLocalId(int localId) {
+        this.localId = localId;
     }
 
     public void setId(String id) {
         this.id = id;
     }
 
-    public String getSecret() {
-        return this.secret;
+    public void setOwner(String owner) {
+        this.owner = owner;
     }
 
-    public void setSecret(String secret) {
+    public void setServer(@NonNull String server) {
+        this.server = server;
+    }
+
+    public void setIspublic(int ispublic) {
+        this.ispublic = ispublic;
+    }
+
+    public void setIsfriend(int isfriend) {
+        this.isfriend = isfriend;
+    }
+
+    public void setFarm(int farm) {
+        this.farm = farm;
+    }
+
+    public void setSecret(@NonNull String secret) {
         this.secret = secret;
     }
 
-    public String getTitle() {
-        return this.title;
-    }
-
-    public void setTitle(String title) {
+    public void setTitle(@NonNull String title) {
         this.title = title;
-    }
-
-    public int getIsfamily() {
-        return this.isfamily;
     }
 
     public void setIsfamily(int isfamily) {
         this.isfamily = isfamily;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(this.owner);
-        dest.writeString(this.server);
-        dest.writeInt(this.ispublic);
-        dest.writeInt(this.isfriend);
-        dest.writeInt(this.farm);
-        dest.writeString(this.id);
-        dest.writeString(this.secret);
-        dest.writeString(this.title);
-        dest.writeInt(this.isfamily);
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
     }
 }

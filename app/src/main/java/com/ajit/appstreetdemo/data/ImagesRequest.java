@@ -5,6 +5,15 @@ public class ImagesRequest {
     private String searchText;
     private int page;
     private int perPage;
+    private int lastId;
+
+    public int getLastId() {
+        return lastId;
+    }
+
+    public void setLastId(int lastId) {
+        this.lastId = lastId;
+    }
 
     public void setSearchText(String searchText) {
         this.searchText = searchText;

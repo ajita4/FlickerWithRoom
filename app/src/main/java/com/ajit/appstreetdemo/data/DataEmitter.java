@@ -6,5 +6,7 @@ public interface DataEmitter {
 
     void setData(Flicker flicker);
 
+    void setLastId(int lastId);
+
     void error();
 }

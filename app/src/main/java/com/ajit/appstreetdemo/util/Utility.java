@@ -1,8 +1,11 @@
 package com.ajit.appstreetdemo.util;
 
 import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.util.DisplayMetrics;
 
+import com.ajit.appstreetdemo.ApplicationController;
 import com.ajit.appstreetdemo.data.models.FlickerPhotosPhoto;
 
 public class Utility {
@@ -26,7 +29,7 @@ public class Utility {
         stringBuilder.append(imageItem.getFarm());
         stringBuilder.append(".staticflickr.com/");
         stringBuilder.append(imageItem.getServer() + "/");
-        stringBuilder.append(imageItem.getId() + "_");
+        stringBuilder.append(imageItem.getImageId() + "_");
         stringBuilder.append(imageItem.getSecret() + "_");
         stringBuilder.append(imageSize.getName() + ".jpg");
         return stringBuilder.toString();
@@ -39,5 +42,17 @@ public class Utility {
     private DisplayMetrics getDisplayMetrics(Context context) {
         return context.getResources().getDisplayMetrics();
     }
-
+    /**
+     * Method to check network available or not
+     *
+     * @return true if available else false
+     */
+    public static boolean isConnected() {
+        ConnectivityManager
+                connectivityManager = (ConnectivityManager) ApplicationController.getInstance().getApplicationContext()
+                .getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = connectivityManager.getActiveNetworkInfo();
+        return activeNetwork != null
+                && activeNetwork.isConnectedOrConnecting();
+    }
 }

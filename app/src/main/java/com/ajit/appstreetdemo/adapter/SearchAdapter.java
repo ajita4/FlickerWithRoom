@@ -58,8 +58,9 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.Holder> {
         holder.itemParent.getLayoutParams().width = itemSize;
         holder.itemParent.getLayoutParams().height = itemSize;
         Glide.with(context)
-                .load(Utility.getImageUrlFromIds(imageItem, ImageSize.IMAGE_SIZE_SMALL_SQUARE))
+                .load(Utility.getImageUrlFromIds(imageItem, ImageSize.IMAGE_SIZE_MEDIUM))
                 .thumbnail(0.2f)
+                .placeholder(R.drawable.no_image)
                 .override(itemSize, itemSize)
                 .centerCrop()
                 .into(holder.imageView);

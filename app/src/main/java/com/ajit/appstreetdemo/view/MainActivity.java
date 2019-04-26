@@ -87,6 +87,8 @@ public class MainActivity extends AppCompatActivity implements DataEmitter {
                 imagesRequest.setSearchText(toolbarSearchInput.getText().toString());
                 imagesRequest.setPage(1);
                 imagesRequest.setPerPage(30);
+                imagesRequest.setLastId(0);
+                adapter.clear();
                 webModel.imageList(imagesRequest);
                 progressBar.setVisibility(View.VISIBLE);
                 if (recyclerViewScrollListener != null) {
@@ -108,8 +110,11 @@ public class MainActivity extends AppCompatActivity implements DataEmitter {
             @Override
             public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
                 // Paginate Vertically
+                imagesRequest.setPage(imagesRequest.getPage() + 1);
                 webModel.imageList(imagesRequest);
-                progressBar.setVisibility(View.VISIBLE);
+                if (Utility.isConnected()) {
+                    progressBar.setVisibility(View.VISIBLE);
+                }
             }
 
             @Override
@@ -154,23 +159,25 @@ public class MainActivity extends AppCompatActivity implements DataEmitter {
 
     @Override
     public void setData(Flicker flicker) {
-        if (flicker.getStat().equals("ok")) {
-            if (flicker.getPhotos().getPages() >= imagesRequest.getPage()) {
-                imagesRequest.setPage(imagesRequest.getPage() + 1);
-            }
-            flicker.getPhotos().getPage();
-            List<FlickerPhotosPhoto> itemList = flicker.getPhotos().getPhoto();
-            if (itemList.size() > 0) {
-                adapter.setItems(itemList);
-                showView(true);
-                progressBar.setVisibility(View.GONE);
+        this.runOnUiThread(() -> {
+            if (flicker.getStat().equals(Constants.API_STATUS_OK)) {
+                List<FlickerPhotosPhoto> itemList = flicker.getPhotos().getPhoto();
+                if (itemList.size() > 0) {
+                    adapter.setItems(itemList);
+                    showView(true);
+                    progressBar.setVisibility(View.GONE);
+                } else {
+                    showView(false);
+                }
             } else {
                 showView(false);
             }
-        } else {
-            showView(false);
-        }
+        });
+    }
 
+    @Override
+    public void setLastId(int lastId) {
+        imagesRequest.setLastId(lastId);
     }
 
     @Override

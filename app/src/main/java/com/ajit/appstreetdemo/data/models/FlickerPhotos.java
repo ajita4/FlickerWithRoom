@@ -5,56 +5,60 @@ import android.os.Parcelable;
 
 import java.util.List;
 
-public class FlickerPhotos implements Parcelable {
-    public static final Creator<FlickerPhotos> CREATOR = new Creator<FlickerPhotos>() {
-        @Override
-        public FlickerPhotos createFromParcel(Parcel source) {
-            FlickerPhotos var = new FlickerPhotos();
-            var.perpage = source.readInt();
-            var.total = source.readString();
-            var.pages = source.readInt();
-            var.photo = source.createTypedArrayList(FlickerPhotosPhoto.CREATOR);
-            var.page = source.readInt();
-            return var;
-        }
+import androidx.annotation.NonNull;
+import androidx.room.ColumnInfo;
+import androidx.room.Entity;
+import androidx.room.Ignore;
+import androidx.room.PrimaryKey;
 
-        @Override
-        public FlickerPhotos[] newArray(int size) {
-            return new FlickerPhotos[size];
-        }
-    };
+
+@Entity(tableName = "flicker_photos_table")
+public class FlickerPhotos {
+
+    @PrimaryKey
+    @NonNull
+    @ColumnInfo(name = "search_text")
+    private String searchText;
+    @NonNull
+    @ColumnInfo(name = "perpage")
     private int perpage;
+    @NonNull
+    @ColumnInfo(name = "total")
     private String total;
+    @NonNull
+    @ColumnInfo(name = "pages")
     private int pages;
+    @Ignore
     private List<FlickerPhotosPhoto> photo;
+    @NonNull
+    @ColumnInfo(name = "page")
     private int page;
 
+    public void setSearchText(@NonNull String searchText) {
+        this.searchText = searchText;
+    }
+
     public int getPerpage() {
-        return this.perpage;
+        return perpage;
     }
 
-    public void setPerpage(int perpage) {
-        this.perpage = perpage;
+    @NonNull
+    public String getSearchText() {
+        return searchText;
     }
 
+    @NonNull
     public String getTotal() {
-        return this.total;
-    }
-
-    public void setTotal(String total) {
-        this.total = total;
+        return total;
     }
 
     public int getPages() {
-        return this.pages;
+        return pages;
     }
 
-    public void setPages(int pages) {
-        this.pages = pages;
-    }
-
+    @NonNull
     public List<FlickerPhotosPhoto> getPhoto() {
-        return this.photo;
+        return photo;
     }
 
     public void setPhoto(List<FlickerPhotosPhoto> photo) {
@@ -62,24 +66,22 @@ public class FlickerPhotos implements Parcelable {
     }
 
     public int getPage() {
-        return this.page;
+        return page;
+    }
+
+    public void setPerpage(int perpage) {
+        this.perpage = perpage;
+    }
+
+    public void setTotal(@NonNull String total) {
+        this.total = total;
+    }
+
+    public void setPages(int pages) {
+        this.pages = pages;
     }
 
     public void setPage(int page) {
         this.page = page;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeInt(this.perpage);
-        dest.writeString(this.total);
-        dest.writeInt(this.pages);
-        dest.writeTypedList(this.photo);
-        dest.writeInt(this.page);
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
     }
 }
