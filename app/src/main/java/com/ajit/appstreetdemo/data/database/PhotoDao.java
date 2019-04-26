@@ -46,4 +46,7 @@ public interface PhotoDao {
 
     @Query("SELECT * from flicker_photos_photo_table where id IN(:imageId) and search_text IN(:searchText) ")
     boolean isPhotoAvaliable(String imageId, String searchText);
+
+    @Query("SELECT * from flicker_photos_photo_table where localId IN(:imageID) ")
+    FlickerPhotosPhoto getSignlePhotosPhoto(int imageID);
 }

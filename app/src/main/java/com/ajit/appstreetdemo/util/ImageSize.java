@@ -3,7 +3,7 @@ package com.ajit.appstreetdemo.util;
 public enum ImageSize {
     IMAGE_SIZE_SMALL_SQUARE("s"),//75
     IMAGE_SIZE_MEDIUM("z"),// 640
-    IMAGE_SIZE_LARGE("h");//1600
+    IMAGE_SIZE_LARGE("b");//1600
 
 
     private String name;

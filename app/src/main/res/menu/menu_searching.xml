@@ -2,11 +2,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/total_column_1"
-        android:title="@string/item_1"
-        app:showAsAction="never" />
-
-    <item
         android:id="@+id/total_column_2"
         android:title="@string/item_2"
         app:showAsAction="never" />

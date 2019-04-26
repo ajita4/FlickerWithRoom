@@ -1,5 +1,8 @@
 package com.ajit.appstreetdemo.data.models;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
@@ -7,7 +10,7 @@ import androidx.room.PrimaryKey;
 
 
 @Entity(tableName = "flicker_photos_photo_table")
-public class FlickerPhotosPhoto {
+public class FlickerPhotosPhoto implements Parcelable {
 
 
     @PrimaryKey(autoGenerate = true)
@@ -39,6 +42,46 @@ public class FlickerPhotosPhoto {
     private String title;
     @ColumnInfo(name = "isfamily")
     private int isfamily;
+
+    public FlickerPhotosPhoto(int localId, @NonNull String id, @NonNull String searchText, String owner, @NonNull String server, int ispublic, int isfriend, int farm, @NonNull String secret, @NonNull String title, int isfamily) {
+        this.localId = localId;
+        this.id = id;
+        this.searchText = searchText;
+        this.owner = owner;
+        this.server = server;
+        this.ispublic = ispublic;
+        this.isfriend = isfriend;
+        this.farm = farm;
+        this.secret = secret;
+        this.title = title;
+        this.isfamily = isfamily;
+    }
+
+    protected FlickerPhotosPhoto(Parcel in) {
+        localId = in.readInt();
+        id = in.readString();
+        searchText = in.readString();
+        owner = in.readString();
+        server = in.readString();
+        ispublic = in.readInt();
+        isfriend = in.readInt();
+        farm = in.readInt();
+        secret = in.readString();
+        title = in.readString();
+        isfamily = in.readInt();
+    }
+
+    public static final Creator<FlickerPhotosPhoto> CREATOR = new Creator<FlickerPhotosPhoto>() {
+        @Override
+        public FlickerPhotosPhoto createFromParcel(Parcel in) {
+            return new FlickerPhotosPhoto(in);
+        }
+
+        @Override
+        public FlickerPhotosPhoto[] newArray(int size) {
+            return new FlickerPhotosPhoto[size];
+        }
+    };
 
     public void setSearchText(@NonNull String searchText) {
         this.searchText = searchText;
@@ -136,5 +179,25 @@ public class FlickerPhotosPhoto {
 
     public void setIsfamily(int isfamily) {
         this.isfamily = isfamily;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(localId);
+        dest.writeString(id);
+        dest.writeString(searchText);
+        dest.writeString(owner);
+        dest.writeString(server);
+        dest.writeInt(ispublic);
+        dest.writeInt(isfriend);
+        dest.writeInt(farm);
+        dest.writeString(secret);
+        dest.writeString(title);
+        dest.writeInt(isfamily);
     }
 }

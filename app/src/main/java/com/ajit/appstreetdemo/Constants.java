@@ -7,6 +7,8 @@ public class Constants {
     public static final String API_KEY = "776aa6d326b1b0cf5b0dc7150b3943c0";
     public static final String API_SECRET = "a4ae9e90be772285";
     public static final String API_STATUS_OK = "ok";
-    public static int GRID_DEFAULT_SPAN_COUNT = 3;
+    public static final String KEY_SELECTED_POSITION = "key_selected_position";
+    public static final String KEY_PHOTOS_LIST = "key_photos_list";
+    public static int GRID_DEFAULT_SPAN_COUNT = 2;
     public static final String TAG_API_IMAGELIST = "tag_images";
 }

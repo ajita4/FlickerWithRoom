@@ -24,7 +24,7 @@ import butterknife.ButterKnife;
 public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.Holder> {
 
     public interface Listener {
-        void onItemClicked(FlickerPhotosPhoto photo);
+        void onItemClicked(List<FlickerPhotosPhoto> photos, int position);
     }
 
     private final Listener listener;
@@ -65,7 +65,7 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.Holder> {
                 .centerCrop()
                 .into(holder.imageView);
 
-        holder.imageView.setOnClickListener(v -> listener.onItemClicked(imageItem));
+        holder.imageView.setOnClickListener(v -> listener.onItemClicked(photoList, i));
 
     }
 

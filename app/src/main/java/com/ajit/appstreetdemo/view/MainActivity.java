@@ -1,6 +1,8 @@
 package com.ajit.appstreetdemo.view;
 
+import android.os.Build;
 import android.os.Bundle;
+import android.transition.Transition;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -19,10 +21,14 @@ import com.ajit.appstreetdemo.data.models.Flicker;
 import com.ajit.appstreetdemo.data.models.FlickerPhotosPhoto;
 import com.ajit.appstreetdemo.util.Utility;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityOptionsCompat;
+import androidx.core.util.Pair;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
@@ -100,8 +106,14 @@ public class MainActivity extends AppCompatActivity implements DataEmitter {
 
     }
 
-    private void openFullScreen(FlickerPhotosPhoto photo) {
+    private void openFullScreen(List<FlickerPhotosPhoto> photos, int position) {
+        ActivityOptionsCompat activityOptions = ActivityOptionsCompat.makeSceneTransitionAnimation(
+                this,
+                new Pair<View, String>(findViewById(R.id.imageView),
+                        PlaceholderFragment.IMAGE_KEY));
 
+
+        FullScreenActivity.start(this, photos, position, activityOptions);
     }
 
     private void setupScrollListener(GridLayoutManager gridLayoutManager) {
@@ -190,4 +202,6 @@ public class MainActivity extends AppCompatActivity implements DataEmitter {
         searchEmptyview.setVisibility(hasData ? View.GONE : View.VISIBLE);
         searchRecyclerView.setVisibility(hasData ? View.VISIBLE : View.GONE);
     }
+
+
 }
