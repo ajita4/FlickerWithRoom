@@ -12,7 +12,7 @@
         android:id="@+id/imageView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="@dimen/start_margin"
+        android:padding="1dp"
         android:layout_weight="1"
         tools:srcCompat="@drawable/no_image" />
 </LinearLayout>
