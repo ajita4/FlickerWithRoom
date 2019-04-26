@@ -33,7 +33,7 @@ public class PlaceholderFragment extends Fragment {
      * The fragment argument representing the section number for this
      * fragment.
      */
-    public static final String ARG_SECTION_NUMBER = "detail:header:image";
+    public static String TRANSITION_VIEW_LOCAL_ID;
     public static final String IMAGE_KEY = "image";
     @BindView(R.id.fullscreen_image)
     ImageView fullscreenImage;
@@ -48,7 +48,7 @@ public class PlaceholderFragment extends Fragment {
     public static PlaceholderFragment newInstance(int imageId) {
         PlaceholderFragment fragment = new PlaceholderFragment();
         Bundle args = new Bundle();
-        args.putInt(ARG_SECTION_NUMBER, imageId);
+        args.putInt(IMAGE_KEY, imageId);
         fragment.setArguments(args);
         return fragment;
     }
@@ -65,7 +65,7 @@ public class PlaceholderFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         ButterKnife.bind(this, view);
 
-        int imageID = getArguments().getInt(ARG_SECTION_NUMBER);
+        int imageID = getArguments().getInt(IMAGE_KEY);
         FlickerRoomDatabase flickerRoomDatabase = FlickerRoomDatabase.getDatabase(getActivity().getApplicationContext());
         PhotoDao photoDao = flickerRoomDatabase.flickerDao();
         new AsyncTask<Void, Void, Void>() {
@@ -87,17 +87,17 @@ public class PlaceholderFragment extends Fragment {
     }
 
     private void loadItem(FlickerPhotosPhoto photosPhoto) {
-        ViewCompat.setTransitionName(fullscreenImage, IMAGE_KEY);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && addTransitionListener(photosPhoto)) {
-            // If we're running on Lollipop and we have added a listener to the shared element
-            loadFullSizeImage(photosPhoto);
-        } else {
-            // If all other cases we should just load the full-size image now
-            loadFullSizeImage(photosPhoto);
+        if (photosPhoto.getLocalId() == Integer.parseInt(TRANSITION_VIEW_LOCAL_ID)) {
+            ViewCompat.setTransitionName(fullscreenImage, TRANSITION_VIEW_LOCAL_ID);
+            addTransitionListener(photosPhoto);
         }
+        loadFullSizeImage(photosPhoto);
     }
 
     private void loadThumbnail(FlickerPhotosPhoto photosPhoto) {
+        if (getActivity() == null) {
+            return;
+        }
         Glide.with(getActivity())
                 .load(Utility.getImageUrlFromIds(photosPhoto, ImageSize.IMAGE_SIZE_SMALL_SQUARE))
                 .thumbnail(0.5f)
@@ -129,7 +129,7 @@ public class PlaceholderFragment extends Fragment {
             transition.addListener(new Transition.TransitionListener() {
                 @Override
                 public void onTransitionEnd(Transition transition) {
-                    loadFullSizeImage(photosPhoto);
+                    loadThumbnail(photosPhoto);
                     transition.removeListener(this);
                 }
 

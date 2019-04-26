@@ -44,7 +44,7 @@ public class FullScreenActivity extends AppCompatActivity {
         Intent intent = new Intent(activity.getApplicationContext(), FullScreenActivity.class);
         intent.putParcelableArrayListExtra(Constants.KEY_PHOTOS_LIST, (ArrayList<? extends Parcelable>) photos);
         intent.putExtra(Constants.KEY_SELECTED_POSITION, position);
-        ActivityCompat.startActivity(activity, intent, activityOptionsCompat.toBundle());
+        ActivityCompat.startActivityForResult(activity, intent, Constants.REQUEST_CODE_START_FULLSCREEN_ACTIVITY,activityOptionsCompat.toBundle());
     }
 
     /**
@@ -69,9 +69,10 @@ public class FullScreenActivity extends AppCompatActivity {
      * Used to Initialize pager data
      *
      * @param flickerPhotosPhotoList Items which contains images to show
-     * @param selectedPosition       Initial position of tab
+     * @param position       Initial position of tab
      */
-    private void updatePagerData(int selectedPosition, List<FlickerPhotosPhoto> flickerPhotosPhotoList) {
+
+    private void updatePagerData(int position, List<FlickerPhotosPhoto> flickerPhotosPhotoList) {
 
         for (int i = 0; i < flickerPhotosPhotoList.size(); i++) {
             FlickerPhotosPhoto contentFolderListItem = flickerPhotosPhotoList.get(i);
@@ -80,10 +81,24 @@ public class FullScreenActivity extends AppCompatActivity {
         mSectionsPagerAdapter.notifyDataSetChanged();
 
         // Set selected tab if adapter is getting initialized for first time
-        container.setCurrentItem(selectedPosition, true);
+        container.setCurrentItem(position , true);
+        container.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
 
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                getIntent().putExtra(Constants.KEY_SELECTED_POSITION, position);
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
     }
-
 
     /**
      * A {@link FragmentPagerAdapter} that returns a fragment corresponding to

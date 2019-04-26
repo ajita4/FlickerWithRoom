@@ -9,6 +9,7 @@ public class Constants {
     public static final String API_STATUS_OK = "ok";
     public static final String KEY_SELECTED_POSITION = "key_selected_position";
     public static final String KEY_PHOTOS_LIST = "key_photos_list";
+    public static final int REQUEST_CODE_START_FULLSCREEN_ACTIVITY = 101;
     public static int GRID_DEFAULT_SPAN_COUNT = 2;
     public static final String TAG_API_IMAGELIST = "tag_images";
 }

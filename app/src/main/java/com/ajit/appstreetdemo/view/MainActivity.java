@@ -1,8 +1,7 @@
 package com.ajit.appstreetdemo.view;
 
-import android.os.Build;
+import android.content.Intent;
 import android.os.Bundle;
-import android.transition.Transition;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -21,14 +20,12 @@ import com.ajit.appstreetdemo.data.models.Flicker;
 import com.ajit.appstreetdemo.data.models.FlickerPhotosPhoto;
 import com.ajit.appstreetdemo.util.Utility;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import androidx.annotation.RequiresApi;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityOptionsCompat;
-import androidx.core.util.Pair;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
@@ -106,12 +103,14 @@ public class MainActivity extends AppCompatActivity implements DataEmitter {
 
     }
 
-    private void openFullScreen(List<FlickerPhotosPhoto> photos, int position) {
-        ActivityOptionsCompat activityOptions = ActivityOptionsCompat.makeSceneTransitionAnimation(
-                this,
-                new Pair<View, String>(findViewById(R.id.imageView),
-                        PlaceholderFragment.IMAGE_KEY));
+    ActivityOptionsCompat activityOptions;
 
+    private void openFullScreen(List<FlickerPhotosPhoto> photos, int position, View view) {
+        PlaceholderFragment.TRANSITION_VIEW_LOCAL_ID = String.valueOf(photos.get(position).getLocalId());
+        activityOptions = ActivityOptionsCompat
+                .makeSceneTransitionAnimation(this,
+                        view.findViewById(R.id.imageView),
+                        PlaceholderFragment.TRANSITION_VIEW_LOCAL_ID);
 
         FullScreenActivity.start(this, photos, position, activityOptions);
     }
@@ -203,5 +202,15 @@ public class MainActivity extends AppCompatActivity implements DataEmitter {
         searchRecyclerView.setVisibility(hasData ? View.VISIBLE : View.GONE);
     }
 
-
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == Constants.REQUEST_CODE_START_FULLSCREEN_ACTIVITY) {
+            // Make sure the request was successful
+            if (resultCode == RESULT_OK) {
+                int position = data.getIntExtra(Constants.KEY_SELECTED_POSITION, 0);
+                gridLayoutManager.scrollToPositionWithOffset(position, 0);
+            }
+        }
+    }
 }
