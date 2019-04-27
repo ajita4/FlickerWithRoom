@@ -1,5 +1,6 @@
 package com.ajit.appstreetdemo.view;
 
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -16,6 +17,11 @@ import com.ajit.appstreetdemo.data.models.FlickerPhotosPhoto;
 import com.ajit.appstreetdemo.util.ImageSize;
 import com.ajit.appstreetdemo.util.Utility;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.RequestOptions;
+import com.bumptech.glide.request.target.Target;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -29,14 +35,16 @@ import butterknife.ButterKnife;
  * A placeholder fragment containing a simple view.
  */
 public class PlaceholderFragment extends Fragment {
+    private static final String PAGER_POSITION = "pager_position";
+    private static final String GRID_ITEM_POSITION = "grid_item_position";
     /**
      * The fragment argument representing the section number for this
      * fragment.
      */
-    public static String TRANSITION_VIEW_LOCAL_ID;
-    public static final String IMAGE_KEY = "image";
-    @BindView(R.id.fullscreen_image)
+    private static final String IMAGE_KEY = "image";
+    @BindView(R.id.imageView)
     ImageView fullscreenImage;
+    private int gridItemSelectedPosition;
 
     public PlaceholderFragment() {
     }
@@ -45,10 +53,12 @@ public class PlaceholderFragment extends Fragment {
      * Returns a new instance of this fragment for the given section
      * number.
      */
-    public static PlaceholderFragment newInstance(int imageId) {
+    public static PlaceholderFragment newInstance(int imageId, int position, int gridItemSelectedPosition) {
         PlaceholderFragment fragment = new PlaceholderFragment();
         Bundle args = new Bundle();
         args.putInt(IMAGE_KEY, imageId);
+        args.putInt(PAGER_POSITION, position);
+        args.putInt(GRID_ITEM_POSITION, gridItemSelectedPosition);
         fragment.setArguments(args);
         return fragment;
     }
@@ -66,6 +76,7 @@ public class PlaceholderFragment extends Fragment {
         ButterKnife.bind(this, view);
 
         int imageID = getArguments().getInt(IMAGE_KEY);
+        gridItemSelectedPosition = getArguments().getInt(GRID_ITEM_POSITION);
         FlickerRoomDatabase flickerRoomDatabase = FlickerRoomDatabase.getDatabase(getActivity().getApplicationContext());
         PhotoDao photoDao = flickerRoomDatabase.flickerDao();
         new AsyncTask<Void, Void, Void>() {
@@ -80,85 +91,55 @@ public class PlaceholderFragment extends Fragment {
             @Override
             protected void onPostExecute(Void aVoid) {
                 super.onPostExecute(aVoid);
-                loadItem(photosPhoto);
+                loadFullSizeImage(photosPhoto);
             }
         }.execute();
 
     }
 
-    private void loadItem(FlickerPhotosPhoto photosPhoto) {
-        if (photosPhoto.getLocalId() == Integer.parseInt(TRANSITION_VIEW_LOCAL_ID)) {
-            ViewCompat.setTransitionName(fullscreenImage, TRANSITION_VIEW_LOCAL_ID);
-            addTransitionListener(photosPhoto);
-        }
-        loadFullSizeImage(photosPhoto);
-    }
 
-    private void loadThumbnail(FlickerPhotosPhoto photosPhoto) {
-        if (getActivity() == null) {
-            return;
-        }
-        Glide.with(getActivity())
-                .load(Utility.getImageUrlFromIds(photosPhoto, ImageSize.IMAGE_SIZE_SMALL_SQUARE))
-                .thumbnail(0.5f)
-                .into(fullscreenImage);
-
-    }
-
-    /**
-     * Load the item's full-size image into our {@link ImageView}.
-     *
-     * @param photosPhoto
-     */
     private void loadFullSizeImage(FlickerPhotosPhoto photosPhoto) {
         if (getActivity() == null) {
             return;
         }
+        String imageTransitionName = String.valueOf(photosPhoto.getLocalId());
+        ViewCompat.setTransitionName(fullscreenImage, imageTransitionName);
+
+        RequestOptions options = new RequestOptions()
+                .skipMemoryCache(true)
+                .fitCenter();
+
         Glide.with(getActivity())
                 .load(Utility.getImageUrlFromIds(photosPhoto, ImageSize.IMAGE_SIZE_LARGE))
+                .apply(options)
+                .listener(new ImageLoadingCallback(getArguments().getInt(PAGER_POSITION)))
                 .into(fullscreenImage);
+
     }
 
+    private class ImageLoadingCallback implements RequestListener<Drawable> {
 
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    private boolean addTransitionListener(FlickerPhotosPhoto photosPhoto) {
-        Transition transition = getActivity().getWindow().getSharedElementEnterTransition();
+        final int mPosition;
 
-        if (transition != null) {
-            // There is an entering shared element transition so add a listener to it
-            transition.addListener(new Transition.TransitionListener() {
-                @Override
-                public void onTransitionEnd(Transition transition) {
-                    loadThumbnail(photosPhoto);
-                    transition.removeListener(this);
-                }
-
-                @Override
-                public void onTransitionStart(Transition transition) {
-                    // No-op
-                }
-
-                @Override
-                public void onTransitionCancel(Transition transition) {
-                    // Make sure we remove ourselves as a listener
-                    transition.removeListener(this);
-                }
-
-                @Override
-                public void onTransitionPause(Transition transition) {
-                    // No-op
-                }
-
-                @Override
-                public void onTransitionResume(Transition transition) {
-                    // No-op
-                }
-            });
-            return true;
+        ImageLoadingCallback(int position) {
+            mPosition = position;
         }
 
-        // If we reach here then we have not added a listener
-        return false;
+        @Override
+        public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+            if (mPosition == gridItemSelectedPosition) {
+                startPostponedEnterTransition();
+            }
+            return false;
+        }
+
+        @Override
+        public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+            if (mPosition == gridItemSelectedPosition) {
+                startPostponedEnterTransition();
+            }
+            return false;
+        }
     }
 
     @Override

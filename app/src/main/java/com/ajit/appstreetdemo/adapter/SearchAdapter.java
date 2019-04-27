@@ -17,6 +17,7 @@ import com.bumptech.glide.Glide;
 import java.util.ArrayList;
 import java.util.List;
 
+import androidx.core.view.ViewCompat;
 import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -57,6 +58,10 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.Holder> {
         FlickerPhotosPhoto imageItem = photoList.get(i);
         holder.itemParent.getLayoutParams().width = itemSize;
         holder.itemParent.getLayoutParams().height = itemSize;
+        String transitionName = String.valueOf(imageItem.getLocalId());
+        // For Animation
+        ViewCompat.setTransitionName(holder.imageView, transitionName);
+
         Glide.with(context)
                 .load(Utility.getImageUrlFromIds(imageItem, ImageSize.IMAGE_SIZE_MEDIUM))
                 .thumbnail(0.2f)
@@ -94,10 +99,10 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.Holder> {
     ////////////////////////////////////////////////////////////////////////////////////////////////
     //// ViewHolder
     ////////////////////////////////////////////////////////////////////////////////////////////////
-    static class Holder extends RecyclerView.ViewHolder {
+  public   static class Holder extends RecyclerView.ViewHolder {
 
         @BindView(R.id.imageView)
-        ImageView imageView;
+       public ImageView imageView;
         @BindView(R.id.item_parent)
         LinearLayout itemParent;
 

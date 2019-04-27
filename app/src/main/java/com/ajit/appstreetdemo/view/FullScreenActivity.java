@@ -15,6 +15,7 @@ import com.ajit.appstreetdemo.data.database.PhotoDao;
 import com.ajit.appstreetdemo.data.models.FlickerPhotosPhoto;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import androidx.annotation.NonNull;
@@ -22,6 +23,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.ActivityOptionsCompat;
+import androidx.core.util.Pair;
+import androidx.core.view.ViewCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
@@ -40,13 +43,41 @@ public class FullScreenActivity extends AppCompatActivity {
     private SectionsPagerAdapter mSectionsPagerAdapter;
     PhotoDao photoDao;
 
-    public static void start(Activity activity, List<FlickerPhotosPhoto> photos, int position, ActivityOptionsCompat activityOptionsCompat) {
+    public static void start(Activity activity, List<FlickerPhotosPhoto> photos, int position, View view) {
         Intent intent = new Intent(activity.getApplicationContext(), FullScreenActivity.class);
         intent.putParcelableArrayListExtra(Constants.KEY_PHOTOS_LIST, (ArrayList<? extends Parcelable>) photos);
         intent.putExtra(Constants.KEY_SELECTED_POSITION, position);
-        ActivityCompat.startActivityForResult(activity, intent, Constants.REQUEST_CODE_START_FULLSCREEN_ACTIVITY,activityOptionsCompat.toBundle());
+
+        Pair[] sharedElements = concatToSystemSharedElements(activity,
+                Pair.create(view, ViewCompat.getTransitionName(view)));
+
+        //noinspection unchecked
+        ActivityOptionsCompat activityOptions = ActivityOptionsCompat
+                .makeSceneTransitionAnimation(activity, sharedElements);
+        ActivityCompat.startActivityForResult(activity, intent, Constants.REQUEST_CODE_START_FULLSCREEN_ACTIVITY, activityOptions.toBundle());
     }
 
+    @SafeVarargs
+    private static Pair[] concatToSystemSharedElements(@NonNull Activity activity, @NonNull Pair<View, String>... activitySharedElements) {
+
+        List<Pair<View, String>> sharedElements = new ArrayList<>();
+        sharedElements.addAll(Arrays.asList(activitySharedElements));
+
+        View decorView = activity.getWindow().getDecorView();
+        View statusBackground = decorView.findViewById(android.R.id.statusBarBackground);
+        View navigationBarBackground = decorView.findViewById(android.R.id.navigationBarBackground);
+
+        if (statusBackground != null) {
+            sharedElements.add(Pair.create(statusBackground, ViewCompat.getTransitionName(statusBackground)));
+        }
+        if (navigationBarBackground != null) {
+            sharedElements.add(Pair.create(navigationBarBackground, ViewCompat.getTransitionName(navigationBarBackground)));
+        }
+
+        Pair[] result = new Pair[sharedElements.size()];
+        sharedElements.toArray(result);
+        return result;
+    }
     /**
      * The {@link ViewPager} that will host the section contents.
      */
@@ -69,19 +100,19 @@ public class FullScreenActivity extends AppCompatActivity {
      * Used to Initialize pager data
      *
      * @param flickerPhotosPhotoList Items which contains images to show
-     * @param position       Initial position of tab
+     * @param position               Initial position of tab
      */
 
     private void updatePagerData(int position, List<FlickerPhotosPhoto> flickerPhotosPhotoList) {
 
         for (int i = 0; i < flickerPhotosPhotoList.size(); i++) {
             FlickerPhotosPhoto contentFolderListItem = flickerPhotosPhotoList.get(i);
-            mSectionsPagerAdapter.addFrag(PlaceholderFragment.newInstance(contentFolderListItem.getLocalId()));
+            mSectionsPagerAdapter.addFrag(PlaceholderFragment.newInstance(contentFolderListItem.getLocalId(),i,position));
         }
         mSectionsPagerAdapter.notifyDataSetChanged();
 
         // Set selected tab if adapter is getting initialized for first time
-        container.setCurrentItem(position , true);
+        container.setCurrentItem(position, true);
         container.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -90,7 +121,9 @@ public class FullScreenActivity extends AppCompatActivity {
 
             @Override
             public void onPageSelected(int position) {
-                getIntent().putExtra(Constants.KEY_SELECTED_POSITION, position);
+                Intent intent = new Intent();
+                intent.putExtra(Constants.KEY_SELECTED_POSITION, position);
+                setResult(RESULT_OK, intent);
             }
 
             @Override

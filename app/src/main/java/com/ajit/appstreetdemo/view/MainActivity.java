@@ -1,10 +1,16 @@
 package com.ajit.appstreetdemo.view;
 
+import android.annotation.TargetApi;
+import android.app.Activity;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
+import android.transition.Transition;
+import android.transition.TransitionInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.ProgressBar;
@@ -18,6 +24,8 @@ import com.ajit.appstreetdemo.data.ImagesRequest;
 import com.ajit.appstreetdemo.data.WebModel;
 import com.ajit.appstreetdemo.data.models.Flicker;
 import com.ajit.appstreetdemo.data.models.FlickerPhotosPhoto;
+import com.ajit.appstreetdemo.util.MediaSharedElementCallback;
+import com.ajit.appstreetdemo.util.TransitionCallback;
 import com.ajit.appstreetdemo.util.Utility;
 
 import java.util.List;
@@ -26,6 +34,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityOptionsCompat;
+import androidx.core.app.SharedElementCallback;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
@@ -55,12 +64,14 @@ public class MainActivity extends AppCompatActivity implements DataEmitter {
     RecyclerViewScrollListener recyclerViewScrollListener;
     Utility utility;
 
+    Activity activity;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
         setSupportActionBar(toolbar);
+        activity = new Activity();
         webModel = new WebModel(this);
         utility = Utility.getInstance();
         init();
@@ -80,7 +91,7 @@ public class MainActivity extends AppCompatActivity implements DataEmitter {
         searchEmptyview.setVisibility(View.GONE);
         showData();
         setupScrollListener(gridLayoutManager);
-
+        setupTransition();
     }
 
     private void showData() {
@@ -103,16 +114,9 @@ public class MainActivity extends AppCompatActivity implements DataEmitter {
 
     }
 
-    ActivityOptionsCompat activityOptions;
 
     private void openFullScreen(List<FlickerPhotosPhoto> photos, int position, View view) {
-        PlaceholderFragment.TRANSITION_VIEW_LOCAL_ID = String.valueOf(photos.get(position).getLocalId());
-        activityOptions = ActivityOptionsCompat
-                .makeSceneTransitionAnimation(this,
-                        view.findViewById(R.id.imageView),
-                        PlaceholderFragment.TRANSITION_VIEW_LOCAL_ID);
-
-        FullScreenActivity.start(this, photos, position, activityOptions);
+        FullScreenActivity.start(this, photos, position,view);
     }
 
     private void setupScrollListener(GridLayoutManager gridLayoutManager) {
@@ -202,6 +206,29 @@ public class MainActivity extends AppCompatActivity implements DataEmitter {
         searchRecyclerView.setVisibility(hasData ? View.VISIBLE : View.GONE);
     }
 
+    private void setupTransition() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            TransitionInflater inflater = TransitionInflater.from(this);
+            Transition exitTransition = inflater.inflateTransition(R.transition.gallery_exit);
+            exitTransition.addListener(new TransitionCallback() {
+                @Override
+                public void onTransitionStart(Transition transition) {
+                    super.onTransitionStart(transition);
+                }
+            });
+            getWindow().setExitTransition(exitTransition);
+            Transition reenterTransition = inflater.inflateTransition(R.transition.gallery_reenter);
+            reenterTransition.addListener(new TransitionCallback() {
+                @Override
+                public void onTransitionEnd(Transition transition) {
+                    super.onTransitionEnd(transition);
+                }
+            });
+            getWindow().setReenterTransition(reenterTransition);
+        }
+    }
+
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -209,7 +236,50 @@ public class MainActivity extends AppCompatActivity implements DataEmitter {
             // Make sure the request was successful
             if (resultCode == RESULT_OK) {
                 int position = data.getIntExtra(Constants.KEY_SELECTED_POSITION, 0);
-                gridLayoutManager.scrollToPositionWithOffset(position, 0);
+                gridLayoutManager.scrollToPosition(position);
+                final MediaSharedElementCallback sharedElementCallback = new MediaSharedElementCallback();
+               setExitSharedElementCallback(sharedElementCallback);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    // Listener to reset shared element exit transition callbacks.
+                   getWindow().getSharedElementExitTransition().addListener(new TransitionCallback() {
+                        @Override
+                        public void onTransitionEnd(Transition transition) {
+                            removeCallback();
+                        }
+
+                        @Override
+                        public void onTransitionCancel(Transition transition) {
+                            removeCallback();
+                        }
+
+                        @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+                        private void removeCallback() {
+                            if (activity != null) {
+                               getWindow().getSharedElementExitTransition().removeListener(this);
+                               setExitSharedElementCallback((SharedElementCallback) null);
+                            }
+                        }
+                    });
+                }
+
+                //noinspection ConstantConditions
+               supportPostponeEnterTransition();
+                searchRecyclerView.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+                    @Override
+                    public boolean onPreDraw() {
+                        searchRecyclerView.getViewTreeObserver().removeOnPreDrawListener(this);
+
+                        RecyclerView.ViewHolder holder = searchRecyclerView.findViewHolderForAdapterPosition(position);
+                        if (holder instanceof SearchAdapter.Holder) {
+                            SearchAdapter.Holder mediaViewHolder = (SearchAdapter.Holder) holder;
+                            sharedElementCallback.setSharedElementViews(mediaViewHolder.imageView);
+                        }
+
+                       supportStartPostponedEnterTransition();
+
+                        return true;
+                    }
+                });
             }
         }
     }
