@@ -6,3 +6,7 @@ IN this sample i have implement follwoing things:
 - RecyclerView
 - Android  transition animation when move one activity to another.
 
+Next Step:
+- Implement RxJava.
+- And MVVM architecture.
+
