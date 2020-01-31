@@ -1,5 +1,5 @@
 # FlickerWithRoom
-IN this sample i have implement follwoing things:
+In this sample, I have implement follwoing things:
 - Flicker Api (search image with name)
 - RoomDatabase
 - Pagination
